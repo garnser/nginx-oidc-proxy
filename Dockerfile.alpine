@@ -37,13 +37,16 @@ RUN git clone https://github.com/nginx-proxy/forego/ \
    && rm -rf /go/forego
 
 # Build the final image
-FROM nginx:1.21.3-alpine
-LABEL maintainer="Nicolas Duchon <nicolas.duchon@gmail.com> (@buchdag)"
+#FROM nginx:1.21.3-alpine
+#LABEL maintainer="Nicolas Duchon <nicolas.duchon@gmail.com> (@buchdag)"
+FROM openresty/openresty:alpine-fat
 
 # Install wget and install/updates certificates
 RUN apk add --no-cache --virtual .run-deps \
    ca-certificates bash wget openssl \
+   openssl-dev git gcc \
    && update-ca-certificates
+RUN luarocks install lua-resty-openidc
 
 # Configure Nginx and apply fix for very long server names
 RUN echo "daemon off;" >> /etc/nginx/nginx.conf \
@@ -70,3 +73,4 @@ VOLUME ["/etc/nginx/certs", "/etc/nginx/dhparam"]
 
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
 CMD ["forego", "start", "-r"]
+#ENTRYPOINT ["/usr/local/openresty/nginx/sbin/nginx", "-g", "daemon off;"]
