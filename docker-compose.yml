@@ -3,12 +3,15 @@ services:
   nginx-proxy:
     build:
       context: .
-      dockerfile: Dockerfile.alpine
+      dockerfile: Dockerfile
+    image: garnser/nginx-oidc-docker-proxy
     container_name: nginx-proxy
     ports:
       - "8889:80"
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./certs:/etc/nginx/certs
+      - ./proxy.conf:/etc/nginx/conf.d/proxy.conf
     networks:
       - authproxy-net
 

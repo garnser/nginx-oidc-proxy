@@ -1,3 +1,5 @@
+Fork based on https://github.com/nginx-proxy/nginx-proxy and https://github.com/zmartzone/lua-resty-openidc
+
 [![Test](https://github.com/nginx-proxy/nginx-proxy/actions/workflows/test.yml/badge.svg)](https://github.com/nginx-proxy/nginx-proxy/actions/workflows/test.yml)
 [![GitHub release](https://img.shields.io/github/v/release/nginx-proxy/nginx-proxy)](https://github.com/nginx-proxy/nginx-proxy/releases)
 ![nginx 1.21.1](https://img.shields.io/badge/nginx-1.21.1-brightgreen.svg)
