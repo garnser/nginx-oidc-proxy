@@ -7,11 +7,13 @@ services:
     image: garnser/nginx-oidc-docker-proxy
     container_name: nginx-proxy
     ports:
-      - "8889:80"
+      - "10080:80"
+      - "10443:443"
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
       - ./certs:/etc/nginx/certs
-      - ./proxy.conf:/etc/nginx/conf.d/proxy.conf
+      - ./vhost.d:/etc/nginx/vhost.d:ro
+      - ./nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
     networks:
       - authproxy-net
 

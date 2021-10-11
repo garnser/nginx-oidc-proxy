@@ -96,10 +96,6 @@ access_log off;
 {{ $ssl_policy := or ($.Env.SSL_POLICY) "Mozilla-Intermediate" }}
 {{ template "ssl_policy" (dict "ssl_policy" $ssl_policy) }}
 
-{{ if $.Env.RESOLVERS }}
-resolver {{ $.Env.RESOLVERS }};
-{{ end }}
-
 {{ if (exists "/etc/nginx/proxy.conf") }}
 include /etc/nginx/proxy.conf;
 {{ else }}

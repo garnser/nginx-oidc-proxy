@@ -1,0 +1,44 @@
+server_tokens off;
+client_max_body_size 100m;
+set $resty_user 'not_authenticated_resty_user';
+set $resty_user_group 'not_authenticated_resty_user';
+
+       access_by_lua '
+         local opts = {
+           redirect_uri_path = "/redirect_uri",
+           accept_none_alg = true,
+           discovery = "https://keycloak.example.com/auth/realms/master/.well-known/openid-configuration",
+           client_id = "netbox",
+           client_secret = "cec6d0ab-cc04-438e-9de0-9a91c88da9ca",
+           redirect_uri_scheme = "https",
+           logout_path = "/logout",
+           redirect_after_logout_uri = "https://keycloak.example.com/auth/realms/master/protocol/openid-connect/logout?redirect_uri=https://netbox.example.com/",
+           redirect_after_logout_with_id_token_hint = false,
+           session_contents = {id_token=true}
+         }
+         -- call introspect for OAuth 2.0 Bearer Access Token validation
+         local res, err = require("resty.openidc").authenticate(opts)
+         if err then
+           ngx.status = 403
+           ngx.say(err)
+           ngx.exit(ngx.HTTP_FORBIDDEN)
+         end
+
+         -- set data from the ID token as HTTP Request headers
+         ngx.req.set_header("X-Remote-User-Groups", res.id_token.groups)
+         ngx.req.set_header("X-Remote-User", res.id_token.preferred_username)
+
+         if res.id_token and res.id_token.preferred_username then
+           ngx.var.resty_user = res.id_token.preferred_username
+           ngx.var.resty_user_group = res.id_token.groups
+         else
+           ngx.var.resty_user = res.preferred_username
+           ngx.var.resty_user_group = res.groups
+         end
+
+      ';
+      # I disabled caching so the browser won't cache the site.
+      expires           0;
+      add_header        Cache-Control private;
+      proxy_set_header              X-Remote-User     $resty_user;
+      proxy_set_header              X-Remote-User-Groups     $resty_user_group;
